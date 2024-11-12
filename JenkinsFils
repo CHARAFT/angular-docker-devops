@@ -40,7 +40,7 @@ pipeline {
                     bat " docker login -u ${ DOCKERHUB_CREDENTIALS_USR } -p ${ DOCKERHUB_CREDENTIALS_PSW }"
                     // Connexion à DockerHub à l'aide des credentials stockés dans Jenkins
                     bat """
-                    echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                    docker login -u charaf751 -p dckr_pat_eu3k7aSzLfj3sM9WZKLVL-ka3IE
                     """
                 }
             }
