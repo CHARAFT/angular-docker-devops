@@ -2,8 +2,9 @@ pipeline {
     agent any
 
     environment {
-        DOCKERHUB_CREDENTIALS = credentials('docker')
-        DOCKER_TEST_IMAGE = "awwin/new-angular:test"
+        // Utiliser les credentials de DockerHub
+        DOCKERHUB_CREDENTIALS = credentials('docker') // Assurez-vous que 'docker' correspond à l'ID que vous avez utilisé dans Jenkins
+        DOCKER_TEST_IMAGE = "charaf751/new-angular:test"
     }
 
     stages {
@@ -16,30 +17,15 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 script {
-                   
-                    bat "docker build -t awwin/new-angular:${env.BUILD_NUMBER} ."
+                    bat "docker build -t ${DOCKER_TEST_IMAGE} ."
                 }
             }
         }
 
-       // stage('Run Angular Tests') {
-            //steps {
-                //script {
-                   // def testResult = bat(script: "docker run --rm ${DOCKER_TEST_IMAGE} ng test --watch=false --browsers=ChromeHeadlessNoSandbox", returnStatus: true)
-                    //if (testResult != 0) {
-                       // error "Angular unit tests failed"
-                    //} else {
-                    //    echo "Angular unit tests passed successfully"
-                    //}
-                //}
-            //}
-        //}
-
         stage('Security Scan with Grype') {
             steps {
                 script {
-                    // Run the Grype security scan on the built Docker image
-                    bat "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype awwin/new-angular:${env.BUILD_NUMBER}"
+                    bat "docker run --rm -v /var/run/docker.sock:/var/run/docker.sock anchore/grype ${DOCKER_TEST_IMAGE}"
                 }
             }
         }
@@ -47,8 +33,10 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 script {
-                    // Login to DockerHub using credentials
-                    bat "docker login -u ${DOCKERHUB_CREDENTIALS_USR} -p ${DOCKERHUB_CREDENTIALS_PSW}"
+                    // Connexion à DockerHub à l'aide des credentials stockés dans Jenkins
+                    bat """
+                    echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
+                    """
                 }
             }
         }
@@ -56,7 +44,8 @@ pipeline {
         stage('Push to DockerHub') {
             steps {
                 script {
-                    bat "docker push awwin/new-angular:${env.BUILD_NUMBER}"
+                    // Pousser l'image vers DockerHub avec le tag spécifié
+                    bat "docker push ${DOCKER_TEST_IMAGE}"
                 }
             }
         }
@@ -72,7 +61,7 @@ pipeline {
         stage('Deploy Front End') {
             steps {
                 script {
-                    bat "docker run -d -p 4201:80 awwin/new-angular:${env.BUILD_NUMBER}"
+                    bat "docker run -d -p 4201:80 ${DOCKER_TEST_IMAGE}"
                 }
             }
         }
