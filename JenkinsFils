@@ -33,6 +33,11 @@ pipeline {
         stage('Login to DockerHub') {
             steps {
                 script {
+                    
+                    //bat " echo ${ DOCKERHUB_CREDENTIALS_PSW }"
+                    bat " echo ${ DOCKERHUB_CREDENTIALS_USR }"
+                    // Use the echo command to pass the password to docker login .
+                    bat " docker login -u ${ DOCKERHUB_CREDENTIALS_USR } -p ${ DOCKERHUB_CREDENTIALS_PSW }"
                     // Connexion à DockerHub à l'aide des credentials stockés dans Jenkins
                     bat """
                     echo ${DOCKERHUB_CREDENTIALS_PSW} | docker login -u ${DOCKERHUB_CREDENTIALS_USR} --password-stdin
