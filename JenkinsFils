@@ -55,14 +55,6 @@ pipeline {
             }
         }
 
-        stage('Deploy Back End') {
-            steps {
-                script {
-                    bat "docker run -d -p 8081:80 test-back-conc:test"
-                }
-            }
-        }
-
         stage('Deploy Front End') {
             steps {
                 script {
